@@ -49,6 +49,7 @@ export async function getEffectiveModel(
       body,
       signal: controller.signal,
     });
+    console.log('response getEffectiveModel', response);
 
     clearTimeout(timeoutId);
 

@@ -41,9 +41,11 @@
     "ignore": "^7.0.0",
     "micromatch": "^4.0.8",
     "open": "^10.1.2",
+    "openai": "^5.7.0",
     "shell-quote": "^1.8.2",
     "simple-git": "^3.28.0",
     "strip-ansi": "^7.1.0",
+    "tiktoken": "^1.0.21",
     "undici": "^7.10.0",
     "ws": "^8.18.0"
   },
