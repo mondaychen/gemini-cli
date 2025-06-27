@@ -12,10 +12,10 @@ import {
 } from '@google/genai';
 import { GeminiClient } from '../core/client.js';
 import { EditToolParams } from '../tools/edit.js';
+import { getFlashModel } from './getFlashModel.js';
 import { LruCache } from './LruCache.js';
-import { DEFAULT_GEMINI_FLASH_MODEL } from '../config/models.js';
 
-const EditModel = DEFAULT_GEMINI_FLASH_MODEL;
+const EditModel = getFlashModel();
 const EditConfig: GenerateContentConfig = {
   thinkingConfig: {
     thinkingBudget: 0,

@@ -13,7 +13,7 @@ export const validateAuthMethod = (authMethod: string): string | null => {
     return null;
   }
 
-  if (authMethod === AuthType.USE_OPENAI) {
+  if (authMethod === AuthType.USE_OPENAI_LIKE) {
     if (!process.env.OPENAI_API_KEY) {
       return 'OPENAI_API_KEY environment variable not found. Add that to your .env and try again, no reload needed!';
     }

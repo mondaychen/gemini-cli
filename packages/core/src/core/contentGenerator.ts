@@ -39,7 +39,7 @@ export enum AuthType {
   LOGIN_WITH_GOOGLE_PERSONAL = 'oauth-personal',
   USE_GEMINI = 'gemini-api-key',
   USE_VERTEX_AI = 'vertex-ai',
-  USE_OPENAI = 'openai',
+  USE_OPENAI_LIKE = 'openai-like',
 }
 
 export type ContentGeneratorConfig = {
@@ -84,13 +84,8 @@ export async function createContentGeneratorConfig(
     return contentGeneratorConfig;
   }
 
-  if (authType === AuthType.USE_OPENAI && openaiApiKey) {
+  if (authType === AuthType.USE_OPENAI_LIKE && openaiApiKey) {
     contentGeneratorConfig.apiKey = openaiApiKey;
-    // contentGeneratorConfig.model = await getEffectiveModel(
-    //   contentGeneratorConfig.apiKey,
-    //   contentGeneratorConfig.model,
-    // );
-
     return contentGeneratorConfig;
   }
 
@@ -123,15 +118,12 @@ export async function createContentGenerator(
     },
   };
 
-  if (config.authType === AuthType.USE_OPENAI) {
-    // const openaiApiKey = process.env.OPENAI_API_KEY;
-    // if (!openaiApiKey) {
-    //   throw new Error('OPENAI_API_KEY is not set');
-    // }
+  if (config.authType === AuthType.USE_OPENAI_LIKE) {
+    const baseURL = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
     const openaiConfig: OpenAIConfig = {
       model: config.model,
       apiKey: config.apiKey || '',
-      baseURL: 'https://api.openai.com/v1',
+      baseURL,
     };
     return new OpenAIProxy(openaiConfig, httpOptions);
   }

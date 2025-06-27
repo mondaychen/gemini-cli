@@ -30,6 +30,7 @@ import { reportError } from '../utils/errorReporting.js';
 import { GeminiChat } from './geminiChat.js';
 import { retryWithBackoff } from '../utils/retry.js';
 import { getErrorMessage } from '../utils/errors.js';
+import { getFlashModel } from '../utils/getFlashModel.js';
 import { tokenLimit } from './tokenLimits.js';
 import {
   ContentGenerator,
@@ -37,7 +38,6 @@ import {
   createContentGenerator,
 } from './contentGenerator.js';
 import { ProxyAgent, setGlobalDispatcher } from 'undici';
-import { DEFAULT_GEMINI_FLASH_MODEL } from '../config/models.js';
 import { AuthType } from './contentGenerator.js';
 
 function isThinkingSupported(model: string) {
@@ -252,9 +252,10 @@ export class GeminiClient {
     contents: Content[],
     schema: SchemaUnion,
     abortSignal: AbortSignal,
-    model: string = DEFAULT_GEMINI_FLASH_MODEL,
+    _model: string | undefined = undefined,
     config: GenerateContentConfig = {},
   ): Promise<Record<string, unknown>> {
+    const model = _model || getFlashModel();
     try {
       const userMemory = this.config.getUserMemory();
       const systemInstruction = getCoreSystemPrompt(userMemory);
@@ -509,7 +510,7 @@ export class GeminiClient {
     }
 
     const currentModel = this.model;
-    const fallbackModel = DEFAULT_GEMINI_FLASH_MODEL;
+    const fallbackModel = getFlashModel();
 
     // Don't fallback if already using Flash model
     if (currentModel === fallbackModel) {
