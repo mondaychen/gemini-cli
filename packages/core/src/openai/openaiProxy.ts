@@ -108,7 +108,7 @@ export class OpenAIProxy implements ContentGenerator {
             }
             functionCalls.push(functionCall);
           } catch (error) {
-            console.error('Error parsing tool call arguments:', error);
+            console.error('Error parsing tool call arguments:', error, functionArgsString);
           }
         }
         const parts: Part[] = [];
