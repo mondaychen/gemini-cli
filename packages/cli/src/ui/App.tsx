@@ -71,6 +71,7 @@ import { checkForUpdates } from './utils/updateCheck.js';
 import ansiEscapes from 'ansi-escapes';
 import { OverflowProvider } from './contexts/OverflowContext.js';
 import { ShowMoreLines } from './components/ShowMoreLines.js';
+import { PrivacyNotice } from './privacy/PrivacyNotice.js';
 
 const CTRL_EXIT_PROMPT_DURATION_MS = 1000;
 
@@ -130,6 +131,11 @@ const App = ({ config, settings, startupWarnings = [] }: AppProps) => {
   const [ctrlDPressedOnce, setCtrlDPressedOnce] = useState(false);
   const ctrlDTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [constrainHeight, setConstrainHeight] = useState<boolean>(true);
+  const [showPrivacyNotice, setShowPrivacyNotice] = useState<boolean>(false);
+
+  const openPrivacyNotice = useCallback(() => {
+    setShowPrivacyNotice(true);
+  }, []);
 
   const errorCount = useMemo(
     () => consoleMessages.filter((msg) => msg.type === 'error').length,
@@ -277,6 +283,7 @@ const App = ({ config, settings, startupWarnings = [] }: AppProps) => {
     toggleCorgiMode,
     showToolDescriptions,
     setQuittingMessages,
+    openPrivacyNotice,
   );
   const pendingHistoryItems = [...pendingSlashCommandHistoryItems];
 
@@ -344,18 +351,6 @@ const App = ({ config, settings, startupWarnings = [] }: AppProps) => {
       // the user starts interacting with the app.
       enteringConstrainHeightMode = true;
       setConstrainHeight(true);
-
-      // If our pending history item happens to exceed the terminal height we will most likely need to refresh
-      // our static collection to ensure no duplication or tearing. This is currently working around a core bug
-      // in Ink which we have a PR out to fix: https://github.com/vadimdemedes/ink/pull/717
-      if (pendingHistoryItemRef.current && pendingHistoryItems.length > 0) {
-        const pendingItemDimensions = measureElement(
-          pendingHistoryItemRef.current,
-        );
-        if (pendingItemDimensions.height > availableTerminalHeight) {
-          refreshStatic();
-        }
-      }
     }
 
     if (key.ctrl && input === 'o') {
@@ -522,23 +517,6 @@ const App = ({ config, settings, startupWarnings = [] }: AppProps) => {
       clearTimeout(handler);
     };
   }, [terminalWidth, terminalHeight, refreshStatic]);
-
-  useEffect(() => {
-    if (!pendingHistoryItems.length) {
-      return;
-    }
-
-    const pendingItemDimensions = measureElement(
-      pendingHistoryItemRef.current!,
-    );
-
-    // If our pending history item happens to exceed the terminal height we will most likely need to refresh
-    // our static collection to ensure no duplication or tearing. This is currently working around a core bug
-    // in Ink which we have a PR out to fix: https://github.com/vadimdemedes/ink/pull/717
-    if (pendingItemDimensions.height > availableTerminalHeight) {
-      setStaticNeedsRefresh(true);
-    }
-  }, [pendingHistoryItems.length, availableTerminalHeight, streamingState]);
 
   useEffect(() => {
     if (streamingState === StreamingState.Idle && staticNeedsRefresh) {
@@ -712,6 +690,11 @@ const App = ({ config, settings, startupWarnings = [] }: AppProps) => {
                 onExit={exitEditorDialog}
               />
             </Box>
+          ) : showPrivacyNotice ? (
+            <PrivacyNotice
+              onExit={() => setShowPrivacyNotice(false)}
+              config={config}
+            />
           ) : (
             <>
               <LoadingIndicator
